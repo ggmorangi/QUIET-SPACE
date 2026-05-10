@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Quiet Space</title>
+<style>
+,::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;min-height:100%;background:#111;overflow-x:hidden;font-size:17px}
+.screen{display:none;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1.5rem}
+.screen.active{display:flex}
+
+/* LANDING */
+#s-land{text-align:center}
+.land-tag{font-family:Georgia,serif;font-size:0.9rem;letter-spacing:0.4em;color:#888;text-transform:uppercase;margin-bottom:2rem}
+.land-main{font-family:Georgia,serif;font-size:2rem;color:#fff;line-height:1.5;margin-bottom:1rem}
+.land-sub{font-family:Georgia,serif;font-style:italic;font-size:1.15rem;color:#bbb;line-height:1.75;margin-bottom:2rem}
+.land-btn{background:transparent;border:1px solid #666;color:#fff;font-family:Georgia,serif;font-size:1rem;letter-spacing:0.2em;padding:0.6rem 1.8rem;cursor:pointer;text-transform:lowercase;transition:all 0.3s;margin-bottom:3rem;border-radius:2px}
+.land-btn:hover{border-color:#fff}
+.land-note{font-family:Georgia,serif;font-size:0.75rem;letter-spacing:0.12em;color:#999;text-align:center;padding:0 1rem;margin-top:2rem;line-height:1.7}
+
+/* PICK */
+#s-pick{justify-content:flex-start;align-items:flex-start;padding-top:3rem;padding-bottom:6rem;overflow-y:auto}
+.pick-wrap{width:100%;max-width:520px}
+.pick-label{font-family:Georgia,serif;font-style:italic;font-size:1rem;color:#aaa;margin-bottom:2rem}
+.q-btn{display:block;width:100%;background:transparent;border:1px solid #888;border-bottom:none;padding:1.4rem 1.5rem;text-align:left;cursor:pointer;transition:background 0.2s}
+.q-btn:last-child{border-bottom:1px solid #888}
+.q-btn:hover{background:rgba(255,255,255,0.04)}
+.q-num{font-family:Georgia,serif;font-size:0.85rem;color:#ccc;margin-bottom:0.3rem}
+.q-text{font-family:Georgia,serif;font-size:1.1rem;color:#fff;line-height:1.6}
+
+/* CHAT */
+#s-chat{justify-content:flex-start;padding:0}
+.chat-wrap{width:100%;max-width:560px;display:flex;flex-direction:column;height:100vh;padding:0 1.5rem}
+.chat-head{padding-top:2rem;padding-bottom:1.2rem;border-bottom:1px solid #555;flex-shrink:0}
+.back-btn{background:transparent;border:none;font-family:Georgia,serif;font-style:italic;font-size:1rem;color:#aaa;cursor:pointer;padding:0;margin-bottom:1rem;display:block}
+.chat-q-text{font-family:Georgia,serif;font-size:1.3rem;color:#fff;line-height:1.6;font-style:italic}
+.msgs{flex:1;overflow-y:auto;padding:2rem 0 9rem;display:flex;flex-direction:column;gap:1.8rem;scrollbar-width:none}
+.msgs::-webkit-scrollbar{display:none}
+.hint-start{font-family:Georgia,serif;font-style:italic;font-size:1rem;color:#666}
+.bubble{display:flex}
+.bubble.user{justify-content:flex-end}
+.bubble.ai{justify-content:flex-start}
+.bubble p{max-width:88%;line-height:1.8}
+.bubble.user p{font-family:Georgia,serif;font-size:1.1rem;color:#aaa;text-align:right}
+.bubble.ai p{font-family:Georgia,serif;font-size:1.2rem;color:#fff}
+.dots{display:flex;gap:7px;padding-top:0.3rem}
+.dot{width:5px;height:5px;border-radius:50%;background:#555;animation:blink 1.5s ease infinite}
+.dot:nth-child(2){animation-delay:0.2s}
+.dot:nth-child(3){animation-delay:0.4s}
+@keyframes blink{0%,100%{opacity:0.2}50%{opacity:0.7}}
+.err{font-family:Georgia,serif;font-style:italic;font-size:0.9rem;color:#c07060;line-height:1.6}
+.input-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;padding:0 1.5rem 2rem;background:linear-gradient(to top,#111 55%,transparent);z-index:20}
+.input-row{border:1px solid #555;padding:1rem 1.2rem;border-radius:8px;background:#1e1e1e;display:flex;flex-direction:column;gap:0.7rem;transition:all 0.3s}
+.input-row:focus-within{border-color:#fff;background:#2a2a2a;box-shadow:0 0 12px rgba(255,255,255,0.08)}
+textarea{width:100%;resize:none;background:transparent;border:none;color:#fff;font-size:1.1rem;font-family:Georgia,serif;line-height:1.7;padding:0;caret-color:#aaa;outline:none;overflow:hidden}
+textarea::placeholder{color:#666}
+.send{align-self:flex-end;background:#2a2a2a;border:1px solid #888;color:#ccc;font-family:Georgia,serif;font-size:1rem;letter-spacing:0.15em;padding:0.55rem 1.6rem;cursor:pointer;text-transform:lowercase;transition:all 0.3s;border-radius:4px}
+.send.on{border-color:#fff;color:#111;background:#fff;box-shadow:0 0 14px rgba(255,255,255,0.25);font-weight:bold}
+</style>
+
+</head>
+<body>
+
+<div id="s-land" class="screen active">
+  <p class="land-tag">quiet space</p>
+  <h1 class="land-main">Grace doesn't knock.</h1>
+  <p class="land-sub">It just arrives. And leaves you different.<br/>Grace has found you.</p>
+  <button class="land-btn" onclick="show('s-pick')">come in</button>
+</div>
+
+<div id="s-pick" class="screen">
+  <div class="pick-wrap">
+    <p style="font-family:Georgia,serif;font-size:1.1rem;color:#fff;margin-bottom:0.6rem;font-style:italic">You can speak in any language.</p>
+    <p class="pick-label">Pick one. Grace will do the rest.</p>
+    <button class="q-btn" onclick="openChat(0)">
+      <p class="q-num">[1]</p>
+      <p class="q-text">Things feel different lately.</p>
+    </button>
+    <button class="q-btn" onclick="openChat(1)">
+      <p class="q-num">[2]</p>
+      <p class="q-text">You noticed something.</p>
+    </button>
+    <button class="q-btn" onclick="openChat(2)">
+      <p class="q-num">[3]</p>
+      <p class="q-text">Something keeps following you around.</p>
+    </button>
+    <button class="q-btn" onclick="openChat(3)">
+      <p class="q-num">[4]</p>
+      <p class="q-text">There's a word sitting at the edge of your mouth.</p>
+    </button>
+    <button class="q-btn" onclick="openChat(4)">
+      <p class="q-num">[5]</p>
+      <p class="q-text">You already know. You just haven't said it yet.</p>
+    </button>
+  </div>
+</div>
+
+<div id="s-chat" class="screen">
+  <div class="chat-wrap">
+    <div class="chat-head">
+      <button class="back-btn" onclick="show('s-pick')">← choose differently</button>
+      <p class="chat-q-text" id="chat-q"></p>
+    </div>
+    <div class="msgs" id="msgs">
+      <p class="hint-start">start anywhere.</p>
+    </div>
+  </div>
+  <div class="input-bar">
+    <div class="input-row">
+      <textarea id="ta" placeholder="say something..." rows="1" oninput="onInput(this)" onkeydown="onKey(event)"></textarea>
+      <button class="send" id="send-btn" onclick="send()">send</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var QS=[
+  "Things feel different lately.",
+  "You noticed something.",
+  "Something keeps following you around.",
+  "There's a word sitting at the edge of your mouth.",
+  "You already know. You just haven't said it yet."
+];
+
+var SYS="You are a quiet, perceptive presence. Not a therapist, not a coach. A space where people hear themselves think.\n\nThe person talking to you notices things others miss. That perception creates friction they cannot name. They may feel out of step, exhausting to others and to themselves.\n\nYour job: say the one thing that slightly displaces them from the loop they are in.\n\nRules:\n- 2 to 4 sentences maximum. Never more.\n- No therapy language: I hear you, that must be hard, it sounds like.\n- No coaching language: what would it look like if, what is your next step.\n- No self-help words: boundaries, triggers, mindset, growth, journey, healing.\n- One question per response at most. Only when it opens something new.\n- Plain observation often lands harder than a question.\n- Short sentences. No flourish.\n- Refract at a slight angle. Do not mirror words back.\n- Never tell them what they are. Show them what they just said.\n- Plain text only.\n- This is a space of dignity. Respond with grace regardless of how the person arrives. Never mirror aggression, never escalate, never match low energy with low energy. The visitor speaks freely. Grace answers.";
+
+var msgs=[], busy=false;
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
+  document.getElementById(id).classList.add('active');
+}
+
+function openChat(i){
+  document.getElementById('chat-q').textContent=QS[i];
+  msgs=[];render();
+  show('s-chat');
+  setTimeout(function(){document.getElementById('ta').focus()},300);
+}
+
+function onInput(el){
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight,120)+'px';
+  document.getElementById('send-btn').className='send'+(el.value.trim()&&!busy?' on':'');
+}
+
+function onKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
+
+function render(){
+  var box=document.getElementById('msgs');
+  if(!msgs.length){box.innerHTML='<p class="hint-start">start anywhere.</p>';return;}
+  box.innerHTML=msgs.map(function(m){
+    return '<div class="bubble '+(m.role==='user'?'user':'ai')+'"><p>'+
+      m.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</p></div>';
+  }).join('');
+  box.scrollTop=box.scrollHeight;
+}
+
+function addDots(){
+  var box=document.getElementById('msgs');
+  var d=document.createElement('div');
+  d.className='dots';d.id='dots';
+  d.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+  box.appendChild(d);box.scrollTop=box.scrollHeight;
+}
+
+function removeDots(){var d=document.getElementById('dots');if(d)d.remove();}
+
+function addErr(t){
+  var box=document.getElementById('msgs');
+  var e=document.createElement('p');
+  e.className='err';e.textContent=t;
+  box.appendChild(e);box.scrollTop=box.scrollHeight;
+}
+
+function send(){
+  var ta=document.getElementById('ta');
+  var text=ta.value.trim();
+  if(!text||busy)return;
+  busy=true;
+  ta.value='';ta.style.height='auto';
+  document.getElementById('send-btn').className='send';
+  msgs.push({role:'user',content:text});
+  render();addDots();
+
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,system:SYS,messages:msgs})
+  })
+  .then(function(r){return r.json().then(function(d){return{ok:r.ok,d:d};});})
+  .then(function(res){
+    removeDots();
+    if(!res.ok)throw new Error(res.d.error&&res.d.error.message||'unknown error');
+    var reply=res.d.content&&res.d.content.find(function(b){return b.type==='text';});
+    if(!reply||!reply.text)throw new Error('Empty response');
+    msgs.push({role:'assistant',content:reply.text});
+    render();
+  })
+  .catch(function(e){removeDots();addErr('Error: '+e.message);})
+  .finally(function(){busy=false;});
+}
+</script>
+
+  <p style="position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);font-family:Georgia,serif;font-size:0.6rem;letter-spacing:0.15em;color:#777;white-space:nowrap;z-index:999">© Gilbert Simba 2026. Quiet Space.</p>
+</body>
+</html>
